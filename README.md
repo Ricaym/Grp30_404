@@ -48,29 +48,58 @@ npm run dev:all
 - Résultats IA (mock seed + endpoint d'intégration)
 - Export JSON collaboration
 
-## Intégration Pôle 2 (Sécurité)
+## État d'avancement
+
+| Pôle | Statut | Où |
+|------|--------|-----|
+| Pôle 1 — App | ✅ Livré | `frontend/` + `backend/` |
+| Pôle 2 — Sécurité | 🔗 Branché (login → SentinelX) | [sentinelx](https://github.com/aaronba2/sentinelx) |
+| Pôle 3 — Analytics IA | 🔗 Script de push prêt | `data/scripts/push_to_api.py` |
+
+## Intégration Pôle 2 (SentinelX)
+
+1. Lancer SentinelX (port **8000**) :
+   ```bash
+   cd sentinelx && docker compose up
+   ```
+2. Configurer `backend/.env` :
+   ```
+   SECURITY_SERVICE_URL=http://localhost:8000
+   ```
+3. À chaque **login** (succès ou échec), notre API envoie un événement vers `POST /security/event`.
+
+> Le Pôle 2 doit accepter un body JSON dynamique (`event`, `ip`, `username`, `severity`). Tant que leur endpoint est en dur, l'appel part mais les données peuvent ne pas être correctes côté SentinelX.
+
+## Intégration Pôle 3 (Analytics)
+
+1. Lancer l'app : `npm run dev:all`
+2. Copier la config : `cp backend/.env.example backend/.env`
+3. Pousser l'analyse d'une vidéo vers le lecteur :
+   ```bash
+   cd data
+   pip install -r requirement.txt
+   python scripts/push_to_api.py --video 1
+   ```
+4. Ouvrir la vidéo `vid-1` dans le lecteur → panneau IA mis à jour.
+
+Mapping : `video 1` (logs Pôle 3) → `vid-1` (app Pôle 1).
+
+---
+
+## Intégration Pôle 2 — détail technique
 
 Configurer dans `backend/.env` :
 
 ```
-INTEGRATION_API_KEY=votre-cle-partagee
-SECURITY_SERVICE_URL=http://localhost:4000
+SECURITY_SERVICE_URL=http://localhost:8000
 ```
 
-Endpoints d'intégration (header `X-Integration-Key`) :
-
-```
-GET  /api/integration/status
-POST /api/integration/security/events   { type, userId?, metadata? }
-```
-
-## Intégration Pôle 3 (IA)
+## Intégration Pôle 3 — détail technique
 
 Configurer dans `backend/.env` :
 
 ```
-INTEGRATION_API_KEY=votre-cle-partagee
-AI_SERVICE_URL=http://localhost:5000
+INTEGRATION_API_KEY=change-me-integration-key
 ```
 
 Pousser les résultats IA vers l'app :
@@ -107,5 +136,5 @@ GET  /api/videos/:id/export         (admin)
 | Pôle | Responsable | Dossier |
 |------|-------------|---------|
 | Pôle 1 — App & Collaboration | Othmane DKHISSI | `frontend/` + `backend/` |
-| Pôle 2 — Sécurité & Infra | Abdenour BESSAM | à intégrer via `/api/integration` |
-| Pôle 3 — IA & Données | Ousmane MANGANE | `data/` + `/api/integration/videos/:id/ai` |
+| Pôle 2 — Sécurité & Infra | Abdenour BESSAM | [sentinelx](https://github.com/aaronba2/sentinelx) + branchement login |
+| Pôle 3 — IA & Données | Mohammed Sabar / Ousmane MANGANE | `data/` + `push_to_api.py` |

@@ -83,3 +83,17 @@ python scripts/train_model.py
 
 streamlit run app.py
 ```
+
+## Branchement vers l'app Pôle 1
+
+Une fois l'API lancée (`npm run dev:all` à la racine) :
+
+```bash
+# depuis data/
+pip install -r requirement.txt
+python scripts/push_to_api.py --video 1
+```
+
+Cela envoie résumé, mots-clés et chapitres (zones d'ennui) vers `vid-1` dans le lecteur Video Learning Hub.
+
+Variables optionnelles : `API_URL`, `INTEGRATION_API_KEY` (même valeur que `backend/.env`).
