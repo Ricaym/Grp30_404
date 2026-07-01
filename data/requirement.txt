@@ -1,0 +1,8 @@
+pandas
+numpy
+faker
+scikit-learn
+matplotlib
+plotly
+streamlit
+joblib
