@@ -196,6 +196,48 @@ export function createCollaborationRouter(hub: CollaborationHub): Router {
     res.status(204).send();
   });
 
+  router.post('/videos/:videoId/events', requireAuth, (req: AuthRequest, res) => {
+    const video = getVideoOr404(req.params.videoId);
+    if (!video) {
+      res.status(404).json({ error: 'Vidéo introuvable.' });
+      return;
+    }
+
+    const { event, timestamp, videoDuration } = req.body as {
+      event?: string;
+      timestamp?: number;
+      videoDuration?: number;
+    };
+
+    const allowed = ['play', 'pause', 'seek', 'stop', 'complete'];
+    if (!event || !allowed.includes(event)) {
+      res.status(400).json({ error: 'Événement invalide.' });
+      return;
+    }
+
+    const position = Number(timestamp);
+    if (!Number.isFinite(position) || position < 0) {
+      res.status(400).json({ error: 'Horodatage invalide.' });
+      return;
+    }
+
+    const duration = Number(videoDuration) || video.duration_seconds;
+    const device = typeof req.headers['x-device'] === 'string' ? req.headers['x-device'] : 'Web';
+
+    db.insertViewingEvent({
+      id: createId('view'),
+      video_id: video.id,
+      user_id: req.user!.id,
+      event: event as 'play' | 'pause' | 'seek' | 'stop' | 'complete',
+      timestamp: Math.min(position, duration),
+      video_duration: duration,
+      device,
+      created_at: new Date().toISOString(),
+    });
+
+    res.status(201).json({ ok: true });
+  });
+
   router.post('/videos/:videoId/analyze', requireAuth, requireRole('admin'), (req, res) => {
     const video = getVideoOr404(req.params.videoId);
     if (!video) {
@@ -242,7 +284,7 @@ export function createCollaborationRouter(hub: CollaborationHub): Router {
         summary: ai.summary,
         keywords: JSON.parse(ai.keywords_json) as string[],
         chapters: JSON.parse(ai.chapters_json) as Array<{ time: string; title: string }>,
-        source: ai.summary.includes('Pôle 3') ? 'pole3' : 'seed',
+        source: ai.summary.startsWith('Analyse audience') ? 'analytics' : 'metadata',
       },
     });
   });

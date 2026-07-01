@@ -55,7 +55,7 @@ export function VideoCard({ video, showDelete = false, onDelete }: VideoCardProp
             {video.hasAiAnalysis && (
               <span className="flex w-fit items-center gap-1 rounded-lg bg-white/90 px-2 py-1 text-[11px] font-semibold text-brand-700 backdrop-blur-sm">
                 <Sparkles className="h-3 w-3" />
-                IA Pôle 3
+                Analyse IA
               </span>
             )}
           </div>

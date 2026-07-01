@@ -12,15 +12,15 @@ export function Header() {
   const pageTitle = getPageTitle(pathname);
   const { query, setQuery } = useVideoFilter();
   const isDashboard = pathname === '/dashboard' || pathname === '/';
-  const [pole2Active, setPole2Active] = useState(false);
+  const [securityActive, setSecurityActive] = useState(false);
 
   useEffect(() => {
     fetch('/api/health')
       .then((response) => response.json())
       .then((data: { features?: { pole2Security?: boolean } }) => {
-        setPole2Active(Boolean(data.features?.pole2Security));
+        setSecurityActive(Boolean(data.features?.pole2Security));
       })
-      .catch(() => setPole2Active(false));
+      .catch(() => setSecurityActive(false));
   }, []);
 
   if (!user || !role) return null;
@@ -50,14 +50,14 @@ export function Header() {
 
         <div
           className={`hidden items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium sm:flex ${
-            pole2Active
+            securityActive
               ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
               : 'border-border bg-surface-muted text-text-muted'
           }`}
-          title={pole2Active ? 'SentinelX configuré (Pôle 2)' : 'SentinelX non configuré'}
+          title={securityActive ? 'Module de sécurité actif' : 'Module de sécurité inactif'}
         >
           <Shield className="h-4 w-4" />
-          <span>Pôle 2</span>
+          <span>Sécurité</span>
         </div>
 
         <div className="hidden rounded-xl border border-brand-200 bg-brand-50 px-3 py-2 text-xs font-medium text-brand-700 sm:block">

@@ -193,6 +193,26 @@ export const api = {
     return result.ai;
   },
 
+  async recordViewingEvent(
+    videoId: string,
+    input: {
+      event: string;
+      timestamp: number;
+      videoDuration: number;
+      device: string;
+    },
+  ): Promise<void> {
+    await request(`/api/videos/${videoId}/events`, {
+      method: 'POST',
+      headers: { 'X-Device': input.device },
+      body: JSON.stringify({
+        event: input.event,
+        timestamp: input.timestamp,
+        videoDuration: input.videoDuration,
+      }),
+    });
+  },
+
   async exportCollaboration(videoId: string): Promise<CollaborationExport> {
     const result = await request<{ export: CollaborationExport }>(`/api/videos/${videoId}/export`);
     return result.export;

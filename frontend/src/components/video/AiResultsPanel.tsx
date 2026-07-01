@@ -61,7 +61,7 @@ export function AiResultsPanel({ video }: AiResultsPanelProps) {
       ) : (
         <>
           <Wand2 className="h-4 w-4" />
-          Lancer l&apos;analyse IA (Pôle 3)
+          Lancer l&apos;analyse IA
         </>
       )}
     </button>
@@ -93,13 +93,13 @@ export function AiResultsPanel({ video }: AiResultsPanelProps) {
             <h2 className="font-semibold text-text-primary">Résultats IA</h2>
           </div>
           <p className="mt-1 text-xs text-text-muted">
-            Pipeline Pôle 3 — audience, zones d&apos;ennui, prédiction rétention
+            Résumé, mots-clés et chapitres générés à partir des données d&apos;engagement
           </p>
         </header>
         <div className="space-y-4 px-5 py-8 text-center">
           <p className="text-sm text-text-muted">
-            Aucune analyse pour cette vidéo. Lancez le pipeline Pôle 3 pour générer résumé,
-            mots-clés et chapitres.
+            Aucune analyse pour cette vidéo. Lancez l&apos;analyse pour générer un résumé,
+            des mots-clés et des chapitres.
           </p>
           {analyzeButton}
           {error && <p className="text-sm text-red-600">{error}</p>}
@@ -107,8 +107,6 @@ export function AiResultsPanel({ video }: AiResultsPanelProps) {
       </section>
     );
   }
-
-  const isPole3 = ai.summary.includes('Pôle 3');
 
   return (
     <section className="rounded-2xl border border-border bg-surface shadow-sm">
@@ -120,9 +118,7 @@ export function AiResultsPanel({ video }: AiResultsPanelProps) {
               <h2 className="font-semibold text-text-primary">Résultats IA</h2>
             </div>
             <p className="mt-1 text-xs text-text-muted">
-              {isPole3
-                ? 'Pipeline Pôle 3 — audience, zones d\'ennui, rétention'
-                : 'Données de démo — lancez l\'analyse pour les résultats Pôle 3'}
+              Résumé, mots-clés et chapitres basés sur l&apos;engagement des spectateurs
             </p>
           </div>
           {analyzeButton}

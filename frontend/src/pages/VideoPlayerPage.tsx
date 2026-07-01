@@ -8,6 +8,7 @@ import { VideoSidePanel } from '@/components/video/VideoSidePanel';
 import { useAuth } from '@/context/AuthContext';
 import { useVideoLibrary } from '@/context/VideoLibraryContext';
 import { useVideoCollaboration } from '@/hooks/useVideoCollaboration';
+import { useViewingAnalytics } from '@/hooks/useViewingAnalytics';
 import { downloadCollaborationJson } from '@/lib/exportCollaboration';
 import { ROUTES } from '@/routes/paths';
 import type { AddAnnotationInput, AnnotationDrawSession, AnnotationType } from '@/types/collaboration';
@@ -35,6 +36,11 @@ export function VideoPlayerPage() {
     removeAnnotation,
     buildExport,
   } = useVideoCollaboration(video?.id ?? '');
+
+  const { handlePlay, handlePause, handleSeeked, handleEnded } = useViewingAnalytics(
+    video?.id ?? '',
+    video?.durationSeconds ?? 0,
+  );
 
   const handleSeek = useCallback((timestamp: number) => {
     playerRef.current?.seekTo(timestamp);
@@ -158,6 +164,10 @@ export function VideoPlayerPage() {
               poster={video.posterUrl}
               title={video.title}
               onTimeUpdate={setCurrentTime}
+              onPlay={handlePlay}
+              onPause={handlePause}
+              onSeeked={handleSeeked}
+              onEnded={handleEnded}
             />
             <VideoAnnotationLayer
               annotations={annotations}

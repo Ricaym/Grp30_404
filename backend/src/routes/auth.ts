@@ -46,8 +46,8 @@ authRouter.post('/login', (req, res) => {
       enabled: isSecurityEnabled(),
       eventSent: isSecurityEnabled(),
       message: isSecurityEnabled()
-        ? 'Événement de connexion transmis à SentinelX (Pôle 2).'
-        : 'SentinelX non configuré (SECURITY_SERVICE_URL).',
+        ? 'Votre connexion a été enregistrée par le module de sécurité.'
+        : 'Module de sécurité non disponible.',
     },
   });
 });

@@ -15,6 +15,10 @@ export interface VideoPlayerProps {
   poster?: string;
   title: string;
   onTimeUpdate?: (currentTime: number) => void;
+  onPlay?: (currentTime: number) => void;
+  onPause?: (currentTime: number) => void;
+  onSeeked?: (currentTime: number) => void;
+  onEnded?: (currentTime: number) => void;
 }
 
 function resolveSourceType(src: string, mimeType?: string): string {
@@ -34,7 +38,7 @@ function isLocalVideoSource(src: string): boolean {
 
 /** Lecteur HTML5 natif — fiable pour les vidéos uploadées (blob URL) */
 const NativeVideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
-  function NativeVideoPlayer({ src, mimeType, poster, title, onTimeUpdate }, ref) {
+  function NativeVideoPlayer({ src, mimeType, poster, title, onTimeUpdate, onPlay, onPause, onSeeked, onEnded }, ref) {
     const videoRef = useRef<HTMLVideoElement>(null);
 
     useImperativeHandle(ref, () => ({
@@ -58,6 +62,10 @@ const NativeVideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
             className="h-full w-full object-contain"
             aria-label={title}
             onTimeUpdate={(event) => onTimeUpdate?.(event.currentTarget.currentTime)}
+            onPlay={(event) => onPlay?.(event.currentTarget.currentTime)}
+            onPause={(event) => onPause?.(event.currentTarget.currentTime)}
+            onSeeked={(event) => onSeeked?.(event.currentTarget.currentTime)}
+            onEnded={(event) => onEnded?.(event.currentTarget.currentTime)}
             onError={() => {
               console.error('Erreur lecture vidéo locale:', mimeType, src);
             }}
@@ -73,14 +81,23 @@ const NativeVideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
 
 /** Video.js — pour les vidéos distantes (mock seed) */
 const VideoJsPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
-  function VideoJsPlayer({ src, mimeType, poster, title, onTimeUpdate }, ref) {
+  function VideoJsPlayer({ src, mimeType, poster, title, onTimeUpdate, onPlay, onPause, onSeeked, onEnded }, ref) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const playerRef = useRef<Player | null>(null);
     const onTimeUpdateRef = useRef(onTimeUpdate);
 
+    const onPlayRef = useRef(onPlay);
+    const onPauseRef = useRef(onPause);
+    const onSeekedRef = useRef(onSeeked);
+    const onEndedRef = useRef(onEnded);
+
     useEffect(() => {
       onTimeUpdateRef.current = onTimeUpdate;
-    }, [onTimeUpdate]);
+      onPlayRef.current = onPlay;
+      onPauseRef.current = onPause;
+      onSeekedRef.current = onSeeked;
+      onEndedRef.current = onEnded;
+    }, [onTimeUpdate, onPlay, onPause, onSeeked, onEnded]);
 
     useImperativeHandle(ref, () => ({
       getCurrentTime: () => playerRef.current?.currentTime() ?? videoRef.current?.currentTime ?? 0,
@@ -110,6 +127,22 @@ const VideoJsPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
 
       player.on('timeupdate', () => {
         onTimeUpdateRef.current?.(player.currentTime() ?? 0);
+      });
+
+      player.on('play', () => {
+        onPlayRef.current?.(player.currentTime() ?? 0);
+      });
+
+      player.on('pause', () => {
+        onPauseRef.current?.(player.currentTime() ?? 0);
+      });
+
+      player.on('seeked', () => {
+        onSeekedRef.current?.(player.currentTime() ?? 0);
+      });
+
+      player.on('ended', () => {
+        onEndedRef.current?.(player.currentTime() ?? 0);
       });
 
       playerRef.current = player;

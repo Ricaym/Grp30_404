@@ -128,7 +128,7 @@ export function UploadPage() {
       const message =
         error instanceof ApiError
           ? error.message
-          : "Échec de l'upload. Vérifiez que le serveur API tourne (npm run dev:all).";
+          : "Échec de l'upload. Vérifiez que le serveur est bien démarré.";
       setErrors({ submit: message });
     }
   };

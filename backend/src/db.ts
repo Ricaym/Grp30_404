@@ -71,6 +71,17 @@ export interface DbAiResult {
   chapters_json: string;
 }
 
+export interface DbViewingEvent {
+  id: string;
+  video_id: string;
+  user_id: string;
+  event: 'play' | 'pause' | 'seek' | 'stop' | 'complete';
+  timestamp: number;
+  video_duration: number;
+  device: string;
+  created_at: string;
+}
+
 interface DatabaseSnapshot {
   users: DbUser[];
   videos: DbVideo[];
@@ -78,6 +89,7 @@ interface DatabaseSnapshot {
   comment_replies: DbReply[];
   annotations: DbAnnotation[];
   ai_results: DbAiResult[];
+  viewing_events: DbViewingEvent[];
 }
 
 const defaultSnapshot = (): DatabaseSnapshot => ({
@@ -87,6 +99,7 @@ const defaultSnapshot = (): DatabaseSnapshot => ({
   comment_replies: [],
   annotations: [],
   ai_results: [],
+  viewing_events: [],
 });
 
 let snapshot: DatabaseSnapshot = defaultSnapshot();
@@ -194,6 +207,7 @@ export const db = {
     snapshot.comments = snapshot.comments.filter((comment) => comment.video_id !== id);
     snapshot.annotations = snapshot.annotations.filter((annotation) => annotation.video_id !== id);
     snapshot.ai_results = snapshot.ai_results.filter((ai) => ai.video_id !== id);
+    snapshot.viewing_events = snapshot.viewing_events.filter((event) => event.video_id !== id);
     persist();
     return true;
   },
@@ -288,6 +302,15 @@ export const db = {
     video.has_ai_analysis = hasAnalysis ? 1 : 0;
     persist();
     return video;
+  },
+
+  insertViewingEvent(event: DbViewingEvent): void {
+    snapshot.viewing_events.push(event);
+    persist();
+  },
+
+  listViewingEvents(videoId: string): DbViewingEvent[] {
+    return snapshot.viewing_events.filter((event) => event.video_id === videoId);
   },
 
   clearAll(): void {
