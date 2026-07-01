@@ -1,34 +1,85 @@
 # Pôle 3 — IA & Données
 
-Dossier réservé au pipeline IA du groupe (Whisper, transcription, résumés, chapitres).
+Dossier dédié à l'analyse des comportements de visionnage et à la prédiction de rétention des utilisateurs.
 
-## Intégration avec l'app
+## Objectifs
 
-Le frontend et l'API sont déjà prêts. Le Pôle 3 peut :
+À partir des logs de visionnage vidéo (play, pause, seek, stop, complete), le système permet de :
 
-1. Développer le service Python / pipeline dans ce dossier
-2. Pousser les résultats vers l'API via :
+* Analyser les comportements utilisateurs ;
+* Calculer le taux de complétion des vidéos ;
+* Identifier les zones d'ennui grâce aux événements de navigation (seek) ;
+* Détecter les vidéos les plus performantes ;
+* Prédire le risque d'abandon d'une vidéo grâce à un modèle de Machine Learning.
 
+## Pipeline IA
+
+Le pipeline se compose des étapes suivantes :
+
+1. Génération et collecte des logs de visionnage ;
+2. Prétraitement et nettoyage des données ;
+3. Analyse exploratoire et visualisations ;
+4. Feature Engineering ;
+5. Entraînement d'un modèle Random Forest ;
+6. Évaluation et sauvegarde du modèle ;
+7. Restitution des résultats dans un dashboard Streamlit.
+
+## Structure
+
+```text
+data/
+├── video_logs.csv
+├── model_dataset.csv
+
+models/
+└── retention_model.pkl
+
+scripts/
+├── generate_logs.py
+├── preprocess.py
+├── train_model.py
+└── analysis.py
+
+app.py
 ```
-POST http://localhost:3001/api/integration/videos/:videoId/ai
-Header: X-Integration-Key: <clé définie dans backend/.env>
+
+## Fonctionnalités
+
+* Analyse statistique des comportements de visionnage ;
+* Visualisation des indicateurs clés ;
+* Détection des zones d'abandon ;
+* Calcul du score de rétention ;
+* Prédiction de complétion ou d'abandon ;
+* Dashboard interactif Streamlit.
+
+## Modèle utilisé
+
+Le modèle de prédiction repose sur un Random Forest Classifier entraîné à partir des caractéristiques suivantes :
+
+* Âge de l'utilisateur ;
+* Pays ;
+* Appareil utilisé ;
+* Identifiant de la vidéo ;
+* Durée de la vidéo.
+
+Le modèle prédit la probabilité qu'un utilisateur termine ou abandonne une vidéo.
+
+## Dashboard
+
+L'application Streamlit permet :
+
+* d'afficher les statistiques globales ;
+* d'explorer les données de visionnage ;
+* de visualiser les indicateurs de rétention ;
+* d'effectuer des prédictions en temps réel à l'aide du modèle entraîné.
+
+## Lancement
+
+```bash
+pip install -r requirements.txt
+
+python scripts/preprocess.py
+python scripts/train_model.py
+
+streamlit run app.py
 ```
-
-3. Les résultats s'affichent automatiquement dans le panneau IA du lecteur vidéo.
-
-## Format attendu
-
-```json
-{
-  "summary": "Résumé textuel de la vidéo",
-  "keywords": ["react", "api", "formation"],
-  "chapters": [
-    { "time": "00:00", "title": "Introduction" },
-    { "time": "02:30", "title": "Concepts clés" }
-  ]
-}
-```
-
-## Variables d'environnement
-
-Voir `backend/.env.example` — `AI_SERVICE_URL` et `INTEGRATION_API_KEY`.
