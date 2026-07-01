@@ -1,0 +1,74 @@
+import { Bell, LogOut, Search } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { getPageTitle } from '@/config/navigation';
+import { useAuth } from '@/context/AuthContext';
+import { ROLE_LABELS } from '@/types/auth';
+
+export function Header() {
+  const { user, role, logout } = useAuth();
+  const { pathname } = useLocation();
+  const pageTitle = getPageTitle(pathname);
+
+  if (!user || !role) return null;
+
+  return (
+    <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-4 border-b border-border bg-surface/80 px-6 backdrop-blur-md">
+      <div className="min-w-0">
+        <h1 className="truncate text-lg font-semibold text-text-primary">{pageTitle}</h1>
+        <p className="truncate text-xs text-text-muted">
+          Plateforme de vidéos pédagogiques — collaboration & IA
+        </p>
+      </div>
+
+      <div className="flex flex-1 items-center justify-end gap-3">
+        <div className="relative hidden max-w-sm flex-1 md:block">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+          <input
+            type="search"
+            placeholder="Rechercher une vidéo..."
+            className="w-full rounded-xl border border-border bg-surface-muted py-2 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-muted outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+            disabled
+            aria-label="Rechercher une vidéo"
+          />
+        </div>
+
+        <button
+          type="button"
+          className="relative rounded-xl border border-border p-2.5 text-text-secondary transition hover:border-brand-200 hover:bg-brand-50 hover:text-brand-600"
+          aria-label="Notifications"
+        >
+          <Bell className="h-4 w-4" />
+          <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-brand-500" />
+        </button>
+
+        <div className="hidden rounded-xl border border-brand-200 bg-brand-50 px-3 py-2 text-xs font-medium text-brand-700 sm:block">
+          {ROLE_LABELS[role]}
+        </div>
+
+        <div className="flex items-center gap-3 rounded-xl border border-border bg-surface px-3 py-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-brand-400 to-brand-600 text-xs font-semibold text-white">
+            {user.name
+              .split(' ')
+              .map((part) => part[0])
+              .join('')
+              .slice(0, 2)
+              .toUpperCase()}
+          </div>
+          <div className="hidden min-w-0 sm:block">
+            <p className="truncate text-sm font-medium text-text-primary">{user.name}</p>
+            <p className="truncate text-xs text-text-muted">{user.email}</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={logout}
+          className="inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-xs font-medium text-text-secondary transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+        >
+          <LogOut className="h-4 w-4" />
+          <span className="hidden sm:inline">Déconnexion</span>
+        </button>
+      </div>
+    </header>
+  );
+}

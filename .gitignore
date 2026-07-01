@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# Build
+frontend/dist/
+backend/dist/
+
+# Runtime / uploads (générés au lancement)
+backend/data/app.json
+backend/uploads/videos/*
+!backend/uploads/videos/.gitkeep
+backend/uploads/posters/*
+!backend/uploads/posters/default-poster.svg
+!backend/uploads/posters/.gitkeep
+
+# Secrets
+.env
+backend/.env
+*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json

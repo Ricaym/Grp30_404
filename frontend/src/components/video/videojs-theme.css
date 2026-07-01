@@ -1,0 +1,112 @@
+/* Video Learning Hub — thème Video.js (blanc & mauve) */
+
+.video-learning-player .video-js {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  border-radius: 0;
+}
+
+.video-learning-player .vjs-poster {
+  background-size: cover;
+}
+
+.video-learning-player .vjs-big-play-button {
+  width: 4.5rem;
+  height: 4.5rem;
+  line-height: 4.5rem;
+  border-radius: 9999px;
+  border: none;
+  background-color: rgb(124 58 237 / 92%);
+  backdrop-filter: blur(4px);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.video-learning-player .vjs-big-play-button:hover,
+.video-learning-player .vjs-big-play-button:focus {
+  background-color: rgb(109 40 217 / 96%);
+  transform: scale(1.06);
+}
+
+.video-learning-player .vjs-big-play-button .vjs-icon-placeholder::before {
+  font-size: 2rem;
+}
+
+.video-learning-player .vjs-control-bar {
+  background: linear-gradient(to top, rgb(26 21 35 / 88%), transparent);
+  height: 3.25rem;
+  padding: 0 0.5rem;
+}
+
+.video-learning-player .vjs-play-progress,
+.video-learning-player .vjs-volume-level {
+  background-color: #8b5cf6;
+}
+
+.video-learning-player .vjs-slider-bar {
+  background-color: rgb(139 92 246 / 35%);
+}
+
+.video-learning-player .vjs-load-progress div {
+  background: rgb(255 255 255 / 22%);
+}
+
+.video-learning-player .vjs-progress-holder {
+  height: 0.35rem;
+  border-radius: 9999px;
+}
+
+.video-learning-player .vjs-progress-holder:hover {
+  height: 0.5rem;
+}
+
+.video-learning-player .vjs-play-progress {
+  border-radius: 9999px;
+}
+
+.video-learning-player .vjs-play-progress::before {
+  color: #c4b5fd;
+  font-size: 0.85em;
+  top: -0.28em;
+}
+
+.video-learning-player .vjs-time-control {
+  font-size: 0.8125rem;
+  min-width: 0;
+  padding: 0 0.35rem;
+}
+
+.video-learning-player .vjs-button > .vjs-icon-placeholder::before {
+  font-size: 1.35rem;
+  line-height: 1.8;
+}
+
+.video-learning-player .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
+  background-color: #1a1523;
+  border-radius: 0.75rem;
+  padding: 0.25rem;
+}
+
+.video-learning-player .vjs-menu li.vjs-selected,
+.video-learning-player .vjs-menu li.vjs-selected:focus,
+.video-learning-player .vjs-menu li.vjs-selected:hover {
+  background-color: #7c3aed;
+  color: #fff;
+}
+
+.video-learning-player .vjs-menu li:hover {
+  background-color: rgb(124 58 237 / 25%);
+}
+
+.video-learning-player .vjs-control:focus,
+.video-learning-player .vjs-control:focus::before,
+.video-learning-player .vjs-control:hover::before {
+  text-shadow: none;
+}
+
+.video-learning-player .vjs-tech:focus {
+  outline: none;
+}
+
+.video-learning-player .vjs-loading-spinner {
+  border-color: rgb(196 181 253 / 35%);
+  border-top-color: #8b5cf6;
+}
