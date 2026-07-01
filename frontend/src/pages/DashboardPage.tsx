@@ -5,24 +5,35 @@ import {
   Loader2,
   MessageSquare,
   PenLine,
+  Search,
   Sparkles,
   TrendingUp,
   Upload,
   Video,
+  X,
 } from 'lucide-react';
+import { SystemAlerts } from '@/components/layout/SystemAlerts';
 import { VideoCard } from '@/components/ui/VideoCard';
+import { VIDEO_CATEGORIES } from '@/config/categories';
 import { useAuth } from '@/context/AuthContext';
+import { useVideoFilter } from '@/context/VideoFilterContext';
 import { useVideoLibrary } from '@/context/VideoLibraryContext';
 import type { Video as VideoType } from '@/data/mockVideos';
+import { filterVideos } from '@/lib/filterVideos';
+import { cn } from '@/lib/utils';
 import { ROUTES } from '@/routes/paths';
 
 export function DashboardPage() {
   const { user, hasRole } = useAuth();
   const { videos, isLoading, removeVideo } = useVideoLibrary();
+  const { query, setQuery, category, setCategory, clearFilters } = useVideoFilter();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const isAdmin = hasRole('admin');
 
   if (!user) return null;
+
+  const filteredVideos = filterVideos(videos, query, category);
+  const hasActiveFilters = query.trim().length > 0 || category !== 'all';
 
   const stats = [
     {
@@ -67,6 +78,8 @@ export function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-8">
+      <SystemAlerts />
+
       <section className="relative overflow-hidden rounded-2xl border border-border bg-surface p-8 shadow-sm">
         <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-brand-100/60 blur-3xl" />
         <div className="absolute -bottom-20 -left-10 h-40 w-40 rounded-full bg-brand-200/40 blur-3xl" />
@@ -116,17 +129,73 @@ export function DashboardPage() {
       </section>
 
       <section>
-        <div className="mb-5 flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-text-primary">Vidéos récentes</h3>
-            <p className="text-sm text-text-secondary">
-              {isAdmin ? 'Vos contenus publiés' : 'Formations disponibles'}
-            </p>
+        <div className="mb-5 flex flex-col gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 className="text-lg font-semibold text-text-primary">Vidéos récentes</h3>
+              <p className="text-sm text-text-secondary">
+                {isAdmin ? 'Vos contenus publiés' : 'Formations disponibles — filtrez par catégorie'}
+              </p>
+            </div>
+            <span className="flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700">
+              <BookOpen className="h-3.5 w-3.5" />
+              {filteredVideos.length} / {videos.length} vidéo{videos.length !== 1 ? 's' : ''}
+            </span>
           </div>
-          <span className="flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700">
-            <BookOpen className="h-3.5 w-3.5" />
-            {videos.length} vidéo{videos.length !== 1 ? 's' : ''}
-          </span>
+
+          <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
+            <div className="relative md:hidden">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+              <input
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Rechercher un cours..."
+                className="w-full rounded-xl border border-border bg-surface-muted py-2 pl-10 pr-4 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+              />
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setCategory('all')}
+                className={cn(
+                  'rounded-full px-3 py-1.5 text-xs font-medium transition',
+                  category === 'all'
+                    ? 'bg-brand-600 text-white'
+                    : 'bg-surface-muted text-text-secondary hover:bg-brand-50 hover:text-brand-700',
+                )}
+              >
+                Toutes
+              </button>
+              {VIDEO_CATEGORIES.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => setCategory(item)}
+                  className={cn(
+                    'rounded-full px-3 py-1.5 text-xs font-medium transition',
+                    category === item
+                      ? 'bg-brand-600 text-white'
+                      : 'bg-surface-muted text-text-secondary hover:bg-brand-50 hover:text-brand-700',
+                  )}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-brand-600 hover:text-brand-700"
+              >
+                <X className="h-3.5 w-3.5" />
+                Réinitialiser les filtres
+              </button>
+            )}
+          </div>
         </div>
 
         {isLoading ? (
@@ -134,10 +203,23 @@ export function DashboardPage() {
             <Loader2 className="h-5 w-5 animate-spin text-brand-500" />
             Chargement des vidéos...
           </div>
-        ) : videos.length === 0 ? (
+        ) : filteredVideos.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-surface py-16 text-center">
-            <p className="text-sm text-text-secondary">Aucune vidéo disponible.</p>
-            {isAdmin && (
+            <p className="text-sm text-text-secondary">
+              {hasActiveFilters
+                ? 'Aucun cours ne correspond à votre recherche.'
+                : 'Aucune vidéo disponible.'}
+            </p>
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="mt-4 text-sm font-medium text-brand-600 hover:text-brand-700"
+              >
+                Voir toutes les vidéos
+              </button>
+            )}
+            {isAdmin && !hasActiveFilters && (
               <Link
                 to={ROUTES.upload}
                 className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-brand-600 hover:text-brand-700"
@@ -149,7 +231,7 @@ export function DashboardPage() {
           </div>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {videos.map((video) => (
+            {filteredVideos.map((video) => (
               <div
                 key={video.id}
                 className={deletingId === video.id ? 'pointer-events-none opacity-50' : undefined}

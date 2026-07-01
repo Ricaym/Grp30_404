@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { GraduationCap, Sparkles } from 'lucide-react';
+import { BarChart3, ExternalLink, GraduationCap, Shield, Sparkles } from 'lucide-react';
 import { getNavItemsForRole } from '@/config/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
@@ -55,17 +55,38 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="border-t border-border p-4">
+      <div className="border-t border-border p-4 space-y-3">
         <div className="rounded-xl bg-linear-to-br from-brand-50 to-brand-100/60 p-4">
           <div className="mb-2 flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-brand-600" />
-            <span className="text-xs font-semibold text-brand-700">Pôle 1 — Lecteur augmenté</span>
+            <span className="text-xs font-semibold text-brand-700">Pôle 3 — Analytics</span>
           </div>
           <p className="text-xs leading-relaxed text-text-secondary">
-            Annotations, commentaires horodatés, WebSocket temps réel et export JSON.
+            Analyse d&apos;engagement, mots-clés et chapitres dans le lecteur.
+          </p>
+          <a
+            href="http://localhost:8501"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-brand-700 hover:underline"
+          >
+            <BarChart3 className="h-3.5 w-3.5" />
+            Dashboard Streamlit
+            <ExternalLink className="h-3 w-3 opacity-70" />
+          </a>
+        </div>
+
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-4">
+          <div className="mb-1 flex items-center gap-2">
+            <Shield className="h-4 w-4 text-emerald-600" />
+            <span className="text-xs font-semibold text-emerald-800">Pôle 2 — SentinelX</span>
+          </div>
+          <p className="text-xs leading-relaxed text-emerald-700">
+            Événements login transmis à l&apos;API sécurité (port 8000).
           </p>
         </div>
-        <p className="mt-3 px-1 text-[11px] text-text-muted">
+
+        <p className="px-1 text-[11px] text-text-muted">
           Rôle actuel : {ROLE_LABELS[role]}
         </p>
       </div>

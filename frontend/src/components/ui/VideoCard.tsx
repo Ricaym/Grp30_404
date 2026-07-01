@@ -46,20 +46,22 @@ export function VideoCard({ video, showDelete = false, onDelete }: VideoCardProp
           <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition group-hover:scale-110">
             <div className="ml-1 h-0 w-0 border-y-[10px] border-y-transparent border-l-[16px] border-l-white" />
           </div>
+          <div className="absolute left-3 top-3 flex flex-col gap-1.5">
+            {video.isUploaded && (
+              <span className="rounded-lg bg-brand-600/90 px-2 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+                Uploadé
+              </span>
+            )}
+            {video.hasAiAnalysis && (
+              <span className="flex w-fit items-center gap-1 rounded-lg bg-white/90 px-2 py-1 text-[11px] font-semibold text-brand-700 backdrop-blur-sm">
+                <Sparkles className="h-3 w-3" />
+                IA Pôle 3
+              </span>
+            )}
+          </div>
           <span className="absolute bottom-3 right-3 rounded-lg bg-black/50 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
             {formatDuration(video.durationSeconds)}
           </span>
-          {video.isUploaded && (
-            <span className="absolute left-3 top-3 rounded-lg bg-brand-600/90 px-2 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
-              Uploadé
-            </span>
-          )}
-          {video.hasAiAnalysis && (
-            <span className="absolute left-3 top-3 flex items-center gap-1 rounded-lg bg-white/90 px-2 py-1 text-[11px] font-semibold text-brand-700 backdrop-blur-sm">
-              <Sparkles className="h-3 w-3" />
-              IA
-            </span>
-          )}
         </div>
 
         <div className="flex flex-1 flex-col gap-3 p-4">

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { getUserByEmail, publicUser } from '../db.js';
 import { authMeHandler, requireAuth, signToken, type AuthRequest } from '../middleware/auth.js';
-import { clientIp, notifySecurityEvent } from '../services/securityClient.js';
+import { clientIp, isSecurityEnabled, notifySecurityEvent } from '../services/securityClient.js';
 
 export const authRouter = Router();
 
@@ -39,7 +39,17 @@ authRouter.post('/login', (req, res) => {
   });
 
   const token = signToken(user);
-  res.json({ token, user: publicUser(user) });
+  res.json({
+    token,
+    user: publicUser(user),
+    security: {
+      enabled: isSecurityEnabled(),
+      eventSent: isSecurityEnabled(),
+      message: isSecurityEnabled()
+        ? 'Événement de connexion transmis à SentinelX (Pôle 2).'
+        : 'SentinelX non configuré (SECURITY_SERVICE_URL).',
+    },
+  });
 });
 
 authRouter.get('/me', requireAuth, authMeHandler);

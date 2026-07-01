@@ -14,6 +14,10 @@ function securityEventUrl(): string | null {
   return `${base}/security/event`;
 }
 
+export function isSecurityEnabled(): boolean {
+  return Boolean(config.securityServiceUrl.replace(/\/$/, ''));
+}
+
 /** Envoie un événement au backend SentinelX (Pôle 2). Ne bloque pas le flux principal. */
 export function notifySecurityEvent(payload: SecurityEventPayload): void {
   const url = securityEventUrl();

@@ -74,6 +74,12 @@ export function mapAnnotation(annotation: DbAnnotation) {
   };
 }
 
-export function getVideoOr404(videoId: string): DbVideo | undefined {
-  return db.getVideo(videoId);
+export function getVideoOr404(videoId: string | string[]): DbVideo | undefined {
+  const id = Array.isArray(videoId) ? videoId[0] : videoId;
+  return db.getVideo(id);
+}
+
+export function routeParam(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return value[0] ?? '';
+  return value ?? '';
 }

@@ -1,4 +1,5 @@
 import type { User } from '@/types/auth';
+import { setLoginFlash } from '@/lib/loginFlash';
 import type {
   AddAnnotationInput,
   CollaborationExport,
@@ -54,13 +55,22 @@ export interface AiResult {
   chapters: Array<{ time: string; title: string }>;
 }
 
+export interface LoginSecurityInfo {
+  enabled: boolean;
+  eventSent: boolean;
+  message: string;
+}
+
 export const api = {
-  async login(email: string, password: string): Promise<{ token: string; user: User }> {
-    const result = await request<{ token: string; user: User }>('/api/auth/login', {
+  async login(email: string, password: string): Promise<{ token: string; user: User; security?: LoginSecurityInfo }> {
+    const result = await request<{ token: string; user: User; security?: LoginSecurityInfo }>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
     setStoredToken(result.token);
+    if (result.security) {
+      setLoginFlash(result.security);
+    }
     return result;
   },
 
@@ -173,6 +183,13 @@ export const api = {
 
   async getAiResults(videoId: string): Promise<AiResult | null> {
     const result = await request<{ ai: AiResult | null }>(`/api/videos/${videoId}/ai`);
+    return result.ai;
+  },
+
+  async analyzeVideo(videoId: string): Promise<AiResult> {
+    const result = await request<{ ai: AiResult }>(`/api/videos/${videoId}/analyze`, {
+      method: 'POST',
+    });
     return result.ai;
   },
 

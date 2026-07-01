@@ -1,0 +1,33 @@
+# Services optionnels pour la démo hackathon.
+# L'app principale se lance avec : npm run dev:all
+#
+# SentinelX (Pôle 2) : cloner https://github.com/aaronba2/sentinelx et lancer son docker-compose.
+# Streamlit (Pôle 3)  : cd data && streamlit run app.py
+
+services:
+  api:
+    image: node:22-alpine
+    working_dir: /app/backend
+    volumes:
+      - ./backend:/app/backend
+      - ./data:/app/data:ro
+    ports:
+      - '3001:3001'
+    env_file:
+      - ./backend/.env
+    command: sh -c "npm install && npm run dev"
+    profiles:
+      - full
+
+  web:
+    image: node:22-alpine
+    working_dir: /app/frontend
+    volumes:
+      - ./frontend:/app/frontend
+    ports:
+      - '5173:5173'
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    depends_on:
+      - api
+    profiles:
+      - full

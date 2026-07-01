@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { createId, db } from '../db.js';
 import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth.js';
-import { getVideoOr404, mapAnnotation, mapComment } from '../serializers.js';
+import { getVideoOr404, mapAnnotation, mapComment, routeParam } from '../serializers.js';
+import { runPole3Analysis } from '../services/pole3Analysis.js';
 import type { CollaborationHub } from '../websocket.js';
 
 export function createCollaborationRouter(hub: CollaborationHub): Router {
@@ -55,7 +56,7 @@ export function createCollaborationRouter(hub: CollaborationHub): Router {
   });
 
   router.post('/comments/:commentId/replies', requireAuth, requireRole('admin'), (req: AuthRequest, res) => {
-    const comment = db.getComment(req.params.commentId);
+    const comment = db.getComment(routeParam(req.params.commentId));
     if (!comment) {
       res.status(404).json({ error: 'Commentaire introuvable.' });
       return;
@@ -169,7 +170,7 @@ export function createCollaborationRouter(hub: CollaborationHub): Router {
   });
 
   router.patch('/annotations/:id', requireAuth, requireRole('admin'), (req: AuthRequest, res) => {
-    const row = db.getAnnotation(req.params.id);
+    const row = db.getAnnotation(routeParam(req.params.id));
     if (!row) {
       res.status(404).json({ error: 'Annotation introuvable.' });
       return;
@@ -184,7 +185,7 @@ export function createCollaborationRouter(hub: CollaborationHub): Router {
   });
 
   router.delete('/annotations/:id', requireAuth, requireRole('admin'), (req, res) => {
-    const row = db.getAnnotation(req.params.id);
+    const row = db.getAnnotation(routeParam(req.params.id));
     if (!row) {
       res.status(404).json({ error: 'Annotation introuvable.' });
       return;
@@ -193,6 +194,29 @@ export function createCollaborationRouter(hub: CollaborationHub): Router {
     db.deleteAnnotation(row.id);
     hub.broadcast(row.video_id, { type: 'annotation:removed', payload: { id: row.id } });
     res.status(204).send();
+  });
+
+  router.post('/videos/:videoId/analyze', requireAuth, requireRole('admin'), (req, res) => {
+    const video = getVideoOr404(req.params.videoId);
+    if (!video) {
+      res.status(404).json({ error: 'Vidéo introuvable.' });
+      return;
+    }
+
+    try {
+      runPole3Analysis(video.id);
+      const ai = db.getAiResult(video.id)!;
+      res.status(201).json({
+        ai: {
+          summary: ai.summary,
+          keywords: JSON.parse(ai.keywords_json) as string[],
+          chapters: JSON.parse(ai.chapters_json) as Array<{ time: string; title: string }>,
+        },
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Analyse IA impossible.';
+      res.status(400).json({ error: message });
+    }
   });
 
   router.get('/videos/:videoId/ai', requireAuth, (req, res) => {
@@ -218,6 +242,7 @@ export function createCollaborationRouter(hub: CollaborationHub): Router {
         summary: ai.summary,
         keywords: JSON.parse(ai.keywords_json) as string[],
         chapters: JSON.parse(ai.chapters_json) as Array<{ time: string; title: string }>,
+        source: ai.summary.includes('Pôle 3') ? 'pole3' : 'seed',
       },
     });
   });

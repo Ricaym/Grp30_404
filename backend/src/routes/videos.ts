@@ -6,6 +6,7 @@ import { config } from '../config.js';
 import { createId, db, type DbVideo } from '../db.js';
 import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth.js';
 import { getVideoOr404, mapVideo } from '../serializers.js';
+import { runPole3Analysis } from '../services/pole3Analysis.js';
 
 function inferMimeType(fileName: string, mimeType?: string): string {
   if (mimeType && mimeType.startsWith('video/')) return mimeType;
@@ -122,7 +123,17 @@ videosRouter.post(
     };
 
     db.insertVideo(record);
-    res.status(201).json({ video: mapVideo(record) });
+
+    let aiGenerated = false;
+    try {
+      runPole3Analysis(id);
+      aiGenerated = true;
+    } catch (error) {
+      console.warn('[pole3] Analyse auto ignorée:', error);
+    }
+
+    const saved = db.getVideo(id) ?? record;
+    res.status(201).json({ video: mapVideo(saved), aiGenerated });
   },
 );
 

@@ -40,21 +40,24 @@ npm run dev:all
 ## Fonctionnalités (Pôle 1)
 
 - Authentification JWT (admin / student)
-- Dashboard vidéos + lecteur augmenté
-- Upload vidéo (admin)
-- Commentaires horodatés + réponses admin
-- Annotations interactives sur la vidéo
-- Synchronisation temps réel (WebSocket)
-- Résultats IA (mock seed + endpoint d'intégration)
+- Dashboard vidéos avec **recherche** et **filtres par catégorie**
+- Lecteur augmenté (commentaires, annotations, WebSocket)
+- Upload vidéo (admin) + **analyse IA auto** après upload
+- Indicateur **Pôle 2 SentinelX** (header + bannière au login)
+- Panneau **IA Pôle 3** (bouton admin + intégration `push_to_api.py`)
 - Export JSON collaboration
+
+## Démo jury
+
+Voir **[DEMO.md](./DEMO.md)** — script 5 minutes pour présenter les 3 pôles.
 
 ## État d'avancement
 
 | Pôle | Statut | Où |
 |------|--------|-----|
 | Pôle 1 — App | ✅ Livré | `frontend/` + `backend/` |
-| Pôle 2 — Sécurité | 🔗 Branché (login → SentinelX) | [sentinelx](https://github.com/aaronba2/sentinelx) |
-| Pôle 3 — Analytics IA | 🔗 Script de push prêt | `data/scripts/push_to_api.py` |
+| Pôle 2 — Sécurité | 🔗 Branché (login → SentinelX + badge UI) | [sentinelx](https://github.com/aaronba2/sentinelx) |
+| Pôle 3 — Analytics IA | 🔗 Intégré (bouton, auto-upload, Streamlit) | `data/` + sidebar lien :8501 |
 
 ## Intégration Pôle 2 (SentinelX)
 
@@ -67,20 +70,22 @@ npm run dev:all
    SECURITY_SERVICE_URL=http://localhost:8000
    ```
 3. À chaque **login** (succès ou échec), notre API envoie un événement vers `POST /security/event`.
+4. L'UI affiche un **badge Pôle 2** dans le header et une **bannière** après connexion.
 
-> Le Pôle 2 doit accepter un body JSON dynamique (`event`, `ip`, `username`, `severity`). Tant que leur endpoint est en dur, l'appel part mais les données peuvent ne pas être correctes côté SentinelX.
+> Le Pôle 2 accepte un body JSON dynamique (`event`, `ip`, `username`, `severity`).
 
 ## Intégration Pôle 3 (Analytics)
 
 1. Lancer l'app : `npm run dev:all`
 2. Copier la config : `cp backend/.env.example backend/.env`
-3. Pousser l'analyse d'une vidéo vers le lecteur :
+3. **Dans l'app** : bouton « Lancer l'analyse IA » (admin) ou upload vidéo (analyse auto)
+4. **Streamlit** : `cd data && pip install -r requirement.txt && streamlit run app.py` → http://localhost:8501
+5. **CLI** (optionnel) :
    ```bash
    cd data
-   pip install -r requirement.txt
    python scripts/push_to_api.py --video 1
    ```
-4. Ouvrir la vidéo `vid-1` dans le lecteur → panneau IA mis à jour.
+6. Ouvrir la vidéo `vid-1` dans le lecteur → panneau IA mis à jour.
 
 Mapping : `video 1` (logs Pôle 3) → `vid-1` (app Pôle 1).
 

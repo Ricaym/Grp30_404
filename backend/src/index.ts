@@ -3,13 +3,20 @@ import express from 'express';
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
 import './seed.js';
 import { createCollaborationRouter } from './routes/collaboration.js';
 import { authRouter } from './routes/auth.js';
 import { integrationRouter } from './routes/integration.js';
 import { videosRouter } from './routes/videos.js';
+import { isSecurityEnabled } from './services/securityClient.js';
 import { attachCollaborationWebSocket } from './websocket.js';
+
+const repoDataDir = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../../data/data/video_logs.csv',
+);
 
 const app = express();
 const server = http.createServer(app);
@@ -63,7 +70,14 @@ app.use('/uploads', (req, res, next) => {
 }));
 
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', service: 'video-learning-hub-api' });
+  res.json({
+    status: 'ok',
+    service: 'video-learning-hub-api',
+    features: {
+      pole2Security: isSecurityEnabled(),
+      pole3Analytics: fs.existsSync(repoDataDir),
+    },
+  });
 });
 
 app.use('/api/auth', authRouter);
